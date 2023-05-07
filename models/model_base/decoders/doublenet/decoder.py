@@ -186,15 +186,13 @@ class Cell2Tissue(nn.Module):
 
             roi_list = []
             for j in range(tissue_features[i].shape[0]): # 遍历batch_size
-                print(avgpool.shape)
-                print(tissue_feature[j, :, trans_x[j]-lenth:trans_x[j]+lenth, trans_y[j]-lenth:trans_y[j]+lenth].shape)
-                tissue_feature[j, :, trans_x[j]-lenth:trans_x[j]+lenth, trans_y[j]-lenth:trans_y[j]+lenth] += avgpool
-                roi = tissue_feature
-                roi_list.append(roi)
+                roi = tissue_feature[j, :, trans_x[j]-lenth:trans_x[j]+lenth, trans_y[j]-lenth:trans_y[j]+lenth].unsqueeze(0)
+                roi += avgpool
+                tissue_feature[j, :, trans_x[j]-lenth:trans_x[j]+lenth, trans_y[j]-lenth:trans_y[j]+lenth] = roi
+                
+                roi_list.append(tissue_feature)
             roi = torch.stack(roi_list, dim=0)
             out.append(roi)
         if(self.feature_depth==1):
-            print(out.shape)
-            out = out[0]
-            print(out.shape)
+            out = out[0].squeeze(0)
         return out

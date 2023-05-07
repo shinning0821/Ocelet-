@@ -50,9 +50,8 @@ class MultiBranchModel(torch.nn.Module):
         tissue_decoder_output = self.tissue_decoder(*tissue_features)
 
         trans2 = self.cell2tissue(tissue_decoder_output,cell_decoder_output,loc)
-
         cell_masks = self.cell_segmentation_head(cell_decoder_output)
-        tissue_masks = self.tissue_segmentation_head(tissue_decoder_output) 
+        tissue_masks = self.tissue_segmentation_head(trans2) 
 
         if self.classification_head is not None:
             labels = self.classification_head(tissue_features[-1])

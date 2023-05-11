@@ -46,7 +46,8 @@ def trainval(exp_dict, savedir_base, datadir, reset=False, num_workers=0):
     # ==================
     # train set
     
-    data_transform = A.Compose([A.Flip(p=0.3),
+    data_transform = A.Compose([
+                                # A.Flip(p=0.3),
                                 # A.Affine(p=0.3),
                                 # A.Rotate(p=0.3),
                                 A.HueSaturationValue(hue_shift_limit=10, sat_shift_limit=15, val_shift_limit=10, p=0.3),
@@ -57,13 +58,19 @@ def trainval(exp_dict, savedir_base, datadir, reset=False, num_workers=0):
                                                     'tissue_img':'mask',
                                                     'tissue_mask':'mask',
                                                     })
-    
+
+    test_transform = A.Compose([A.Resize(1024, 1024)],
+                                keypoint_params=A.KeypointParams(format='xy'),
+                                additional_targets={'mask0': 'mask',
+                                                    'tissue_img':'mask',
+                                                    'tissue_mask':'mask',
+                                                    })
     # random.seed(20201009)
     random_seed = random.randint(0, 20201009)
     train_set = OceletDataset(data_dir=datadir,
                                n_classes=exp_dict["n_classes"],
                                transform=data_transform,
-                               option="train",
+                               option="origin",
                                random_seed=random_seed
                                )
 
@@ -71,7 +78,7 @@ def trainval(exp_dict, savedir_base, datadir, reset=False, num_workers=0):
     # val set
     val_set = OceletDataset(data_dir=datadir,
                         transform=data_transform,
-                        option="train")
+                        option="val")
 
     val_loader = DataLoader(val_set,
                             batch_size=1,
@@ -80,7 +87,7 @@ def trainval(exp_dict, savedir_base, datadir, reset=False, num_workers=0):
     # test set
     test_set = OceletDataset(data_dir=datadir,
                          transform=data_transform,
-                         option="train")
+                         option="test")
 
     test_loader = DataLoader(test_set,
                              batch_size=1,

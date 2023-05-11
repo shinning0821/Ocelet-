@@ -210,7 +210,7 @@ class SegNet(torch.nn.Module):
         cell_images = batch["images"].to(self.device)
         cell_masks = batch["gt"].long().to(self.device)
         tissue_img = batch["tissue_img"].to(self.device)
-        tissue_mask = batch["tissue_mask"].long().to(self.device)
+        tissue_masks = batch["tissue_mask"].long().to(self.device)
         roi_loc = batch["roi_loc"].to(self.device)
 
         cell_logits,tissue_logits = self.model_base.forward(cell_images,tissue_img,roi_loc)
@@ -221,20 +221,20 @@ class SegNet(torch.nn.Module):
 
     def vis_on_batch(self, batch, savedir_image):
         self.eval()
-        cell_images = batch["images"].to(self.device)
+        cell_img = batch["images"].to(self.device)
         cell_masks = batch["gt"].long().to(self.device)
         tissue_img = batch["tissue_img"].to(self.device)
-        tissue_mask = batch["tissue_mask"].long().to(self.device)
+        tissue_masks = batch["tissue_mask"].long().to(self.device)
         roi_loc = batch["roi_loc"].to(self.device)
 
-        cell_logits,tissue_logits = self.model_base.forward(cell_images,tissue_img,roi_loc)
+        cell_logits,tissue_logits = self.model_base.forward(cell_img,tissue_img,roi_loc)
 
         prob = cell_logits.sigmoid()
         seg = torch.argmax(prob, dim=1)
         #         import pdb
         #         pdb.set_trace()
         fig, axes = plt.subplots(1, 3, figsize=(30, 10))
-        axes[0].imshow(cell_images[0].detach().cpu().numpy().transpose(1, 2, 0))
+        axes[0].imshow(cell_img[0].detach().cpu().numpy().transpose(1, 2, 0))
         axes[1].imshow(cell_masks[0].detach().cpu().numpy(), vmax=7, vmin=0)
         axes[2].imshow(seg[0].detach().cpu().numpy(), vmax=7, vmin=0)
         for ax in axes:
@@ -244,7 +244,7 @@ class SegNet(torch.nn.Module):
 
     def iou_pytorch(self, outputs: torch.Tensor, labels: torch.Tensor):
         smooth = 1e-6
-        n_cls = 2
+        n_cls = 3
         outputs = torch.argmax(outputs, dim=1) if outputs.dtype is not torch.bool else outputs
         labels = labels.squeeze(1).round() if labels.dtype is not torch.bool else labels
         iou = 0.0

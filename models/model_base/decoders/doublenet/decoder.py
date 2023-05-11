@@ -184,15 +184,14 @@ class Cell2Tissue(nn.Module):
             trans_y = (y * tissue_feature.shape[-1] / self.origin_shape).long()
             lenth = int(128 * tissue_feature.shape[-1] / self.origin_shape)
 
-            roi_list = []
-            for j in range(tissue_features[i].shape[0]): # 遍历batch_size
+            for j in range(tissue_feature.shape[0]): # 遍历batch_size
                 roi = tissue_feature[j, :, trans_x[j]-lenth:trans_x[j]+lenth, trans_y[j]-lenth:trans_y[j]+lenth].unsqueeze(0)
-                roi += avgpool
+                roi += avgpool[i,:,:,:]
                 tissue_feature[j, :, trans_x[j]-lenth:trans_x[j]+lenth, trans_y[j]-lenth:trans_y[j]+lenth] = roi
                 
-                roi_list.append(tissue_feature)
-            roi = torch.stack(roi_list, dim=0)
-            out.append(roi)
+
+            out.append(tissue_feature)
+
         if(self.feature_depth==1):
-            out = out[0].squeeze(0)
+            out = out[0]
         return out

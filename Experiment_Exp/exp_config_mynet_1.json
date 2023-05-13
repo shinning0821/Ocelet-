@@ -12,6 +12,6 @@
         "lr": 0.001,
         "optimizer": "adam"
     },
-    "patch_size":256,
-    "n_classes":4
+    "patch_size":1024,
+    "n_classes":3
 }

@@ -70,13 +70,13 @@ def trainval(exp_dict, savedir_base, datadir, reset=False, num_workers=0):
     train_set = OceletDataset(data_dir=datadir,
                                n_classes=exp_dict["n_classes"],
                                transform=data_transform,
-                               option="origin",
+                               option="train",
                                random_seed=random_seed
                                )
 
-    test_transform = A.Compose([A.Resize(512, 512)])
     # val set
     val_set = OceletDataset(data_dir=datadir,
+                        n_classes=exp_dict["n_classes"],
                         transform=data_transform,
                         option="val")
 
@@ -86,6 +86,7 @@ def trainval(exp_dict, savedir_base, datadir, reset=False, num_workers=0):
     
     # test set
     test_set = OceletDataset(data_dir=datadir,
+                        n_classes=exp_dict["n_classes"],
                          transform=data_transform,
                          option="test")
 
@@ -97,7 +98,6 @@ def trainval(exp_dict, savedir_base, datadir, reset=False, num_workers=0):
 
     # torch.manual_seed(20201009)
     model = models.get_model(exp_dict['model'], exp_dict=exp_dict, train_set=train_set).cuda()
-
     model_path = os.path.join(savedir, "model.pth")
     score_list_path = os.path.join(savedir, "score_list.pkl")
 
